@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Space, Select, Row, Col } from 'antd';
+import { Form, Input, Button, Space, Select, Row, Col, DatePicker, TimePicker } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import Swal from "sweetalert2";
-
+import { useNavigate } from 'react-router-dom';
 const { Option } = Select;
 
 const CreateEvents = () => {
   const [fields, setFields] = useState([{ type: '', label: '', options: [] }]);
   const token = localStorage.getItem('token');
-  
+  const navigate = useNavigate();
   const addField = () => {
     setFields([...fields, { type: '', label: '', options: [] }]);
   };
@@ -40,6 +40,7 @@ const CreateEvents = () => {
       }
 
       Swal.fire("Éxito", "¡Evento creado exitosamente!", "success");
+      navigate('/form'); // Adjust this path as necessary
     } catch (error) {
       console.error('Error creating event:', error);
       Swal.fire("Error", "Error al crear el evento, valide los datos", "error");
@@ -75,6 +76,8 @@ const CreateEvents = () => {
                 <Option value="textarea">Área de texto</Option>
                 <Option value="number">Número</Option>
                 <Option value="date">Fecha</Option>
+                <Option value="time">Hora</Option>
+                <Option value="datetime">Fecha y Hora</Option>
                 <Option value="image">Imagen</Option>
                 <Option value="select">Selección</Option>
               </Select>

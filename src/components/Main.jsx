@@ -4,13 +4,18 @@ import Navbar from "../Layouts/Navbar.jsx";
 
 
 function Main(props) {
+    const user = JSON.parse(localStorage.getItem("user"));
     return (
         <>
-            <Navbar></Navbar>
+            <Navbar />
             <div className="container-fluid">
                 <div className="row flex-nowrap">
-                    <Sidebar></Sidebar>
-                    <div className="col py-3 main-part">
+                    {user.roleId !== 2 && (
+                        <div className="col-2 col-md-2 col-lg-2 d-md-block bg-sidebar">
+                            <Sidebar />
+                        </div>
+                    )}
+                    <div className="col-10 col-md-10 col-lg-10 py-3 main-part">
                         {props.component}
                     </div>
                 </div>

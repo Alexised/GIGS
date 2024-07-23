@@ -43,6 +43,7 @@ const CreateUser = () => {
       }
       Swal.fire("Creado", "Usuario creado", "success");
       setLoading(false);
+      navigate('/users'); // Adjust this path as necessary
     } catch (error) {
       console.error('Error creating user:', error);
       Swal.fire("Error", "Error al crear usuario", "error");

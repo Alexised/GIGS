@@ -1,35 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Input, Button, Space } from 'antd';
+import { Input, Button, Space, message } from 'antd';
 import Highlighter from 'react-highlight-words';
-import { SearchOutlined, EyeOutlined } from '@ant-design/icons'; // Importar el ícono de "ver" desde antd
-import { Link } from 'react-router-dom'; // Importa Link desde react-router-dom
-import { useNavigate } from 'react-router-dom';
+import { SearchOutlined, EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Link, useNavigate } from 'react-router-dom';
+import GenericTable from '../table/Table'; // Assuming the file is in the same directory
 
 const ListFills = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [forms, setForms] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const userDetail = JSON.parse(localStorage.getItem('user'));
   const roleId = userDetail.roleId;
+
   useEffect(() => {
-    // Cargar los formularios al montar el componente
     fetchForms();
   }, []);
 
   const fetchForms = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}fills`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}logs`);
       setForms(response.data);
     } catch (error) {
       console.error('Error fetching forms:', error);
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}logs/${id}`);
+      setForms(forms.filter(form => form.id !== id));
+      message.success('Log deleted successfully');
+    } catch (error) {
+      console.error('Error deleting form:', error);
+      message.error('Error deleting log');
+    }
+  };
+
   const getColumnSearchProps = dataIndex => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-
       <div style={{ padding: 8 }}>
         <Input
           ref={node => {
@@ -89,53 +99,70 @@ const ListFills = () => {
 
   const columns = [
     {
-      title: 'id',
+      title: 'ID',
       dataIndex: 'id',
       key: 'id',
       ...getColumnSearchProps('id'),
     },
     {
-      title: 'Nombre de la bitacora',
-      dataIndex: 'codeInspectionCompany',
-      key: 'codeInspectionCompany',
-      ...getColumnSearchProps('codeInspectionCompany'),
+      title: 'Nombre',
+      dataIndex: 'name',
+      key: 'name',
+      ...getColumnSearchProps('name'),
     },
     {
-      title: 'ubicacion',
-      dataIndex: 'city',
-      key: 'city',
-      ...getColumnSearchProps('city'),
+      title: 'Ubicación',
+      dataIndex: 'location.name',
+      key: 'locationName',
+      ...getColumnSearchProps('location.name'),
     },
     {
-      title: 'supervisor',
-      dataIndex: 'codeForm',
-      key: 'codeForm',
-      ...getColumnSearchProps('codeForm'),
-    },
-    {
-      title: 'Acción',
-      key: 'action',
-      render: (_, record) => (
-        <Space size="middle">
-          <Link to={`/show/form/${record.id}`}>
-            <Button style={{ backgroundColor: '#3DB1FF' }} type="primary" icon={<EyeOutlined />} >Ver</Button>
-          </Link>
-        </Space>
-      ),
+      title: 'Supervisor',
+      dataIndex: 'location.customer.name',
+      key: 'supervisorName',
+      ...getColumnSearchProps('location.customer.name'),
     },
   ];
 
-  return(
-  <div>
-    <h1>Lista de bitacoras</h1>
-    <Table columns={columns} dataSource={forms} />
-    {roleId === 1 && ( // Only show "Crear nuevo formulario" button for admin
-      <Button style={{ marginLeft: '10px', marginRight: '10px', backgroundColor: '1F5BE3', borderColor: '1F5BE3' }} type="primary" onClick={() => navigate('/form/create')}>
-        Crear nueva bitacora
-      </Button>
-    )}
-  </div>
-  )
+  const actions = [
+    {
+      type: 'link',
+      label: '',
+      icon: <EyeOutlined />,
+      style: { backgroundColor: '#3DB1FF' },
+      onClick: (record) => navigate(`/show/logs/${record.id}`)
+    },
+    {
+      type: 'link',
+      label: '',
+      icon: <EditOutlined />,
+      onClick: (record) => navigate(`/logs/edit/${record.id}`)
+    },
+    {
+      type: 'popconfirm',
+      label: '',
+      icon: <DeleteOutlined />,
+      danger: true,
+      confirmMessage: '¿Está seguro de eliminar esta bitacora?',
+      onConfirm: (record) => handleDelete(record.id)
+    },
+  ];
+
+  return (
+    <div>
+      <h1>Lista de bitacoras</h1>
+      <GenericTable columns={columns} data={forms} actions={actions} />
+      {roleId !== 2 && (
+        <Button
+          style={{ marginLeft: '10px', marginRight: '10px', backgroundColor: '#1F5BE3', borderColor: '#1F5BE3' }}
+          type="primary"
+          onClick={() => navigate('/logs/create')}
+        >
+          Crear nueva bitacora
+        </Button>
+      )}
+    </div>
+  );
 };
 
 export default ListFills;

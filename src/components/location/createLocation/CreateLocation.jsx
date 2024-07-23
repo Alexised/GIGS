@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Form, Input, Button, Select } from 'antd';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -8,35 +9,60 @@ import useFetchSupervisors from '../../../hooks/useFetchSupervisors';
 const { Option } = Select;
 
 const CreateLocation = () => {
-
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null);
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { supervisors, loading: loadingSupervisors, error: errorSupervisors } = useFetchSupervisors();
-  const handleRoleChange = (value) => {
-    setSelectedRole(value);
+
+  useEffect(() => {
+    if (id) {
+      fetchLocationDetails(id);
+    }
+  }, [id]);
+
+  const fetchLocationDetails = async (locationId) => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}locations/${locationId}`);
+      form.setFieldsValue(response.data);
+    } catch (error) {
+      console.error('Error fetching location details:', error);
+    }
   };
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const url = `${import.meta.env.VITE_BASE_URL}locations`;
-      const response = await axios.post(url, values);
-      if (!response) {
-        throw new Error('Failed to create location');
+      if (id) {
+        const response = await axios.put(`${import.meta.env.VITE_BASE_URL}locations/${id}`, values);
+        if (!response) {
+          throw new Error('Failed to update location');
+        }
+        Swal.fire('Actualizado', 'Ubicación actualizada', 'success');
+      } else {
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}locations`, values);
+        if (!response) {
+          throw new Error('Failed to create location');
+        }
+        Swal.fire('Creado', 'Ubicación creada', 'success');
       }
-      Swal.fire('Creado', 'Ubicación creada', 'success');
       setLoading(false);
+      navigate('/location'); // Ajusta esta ruta según sea necesario
     } catch (error) {
-      console.error('Error creating location:', error);
-      Swal.fire('Error', 'Error al crear ubicación', 'error');
+      if (id) {
+        Swal.fire('Error', 'Error al actualizar ubicación', 'error');
+      }else{
+        Swal.fire('Error', 'Error al crear ubicación', 'error');
+
+      }
+      console.error('Error creating/updating location:', error);
       setLoading(false);
     }
   };
 
   return (
     <div>
-      <h1>Crear Ubicación</h1>
+      <h1>{id ? 'Editar Ubicación' : 'Crear Ubicación'}</h1>
       <Form
         form={form}
         layout="vertical"
@@ -52,18 +78,19 @@ const CreateLocation = () => {
         </Form.Item>
 
         <Form.Item
-            name="supervisor"
-            label="Supervisor"
-            rules={[{ required: true, message: 'por favor seleccione Supervisor' }]}
-          >
-            <Select placeholder="Supervisor" loading={loadingSupervisors}>
-              {supervisors.map((supervisor) => (
-                <Option key={supervisor.id} value={supervisor.id}>
-                  {supervisor.fullName}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+          name="customerId"
+          label="Supervisor"
+          rules={[{ required: true, message: 'Por favor seleccione un Supervisor' }]}
+        >
+          <Select placeholder="Supervisor" loading={loadingSupervisors}>
+            {supervisors.map((supervisor) => (
+              <Option key={supervisor.id} value={supervisor.id}>
+                {supervisor.fullName}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+        
         <Form.Item>
           <Button
             type="primary"
@@ -76,7 +103,7 @@ const CreateLocation = () => {
             htmlType="submit"
             loading={loading}
           >
-            Crear Ubicación
+            {id ? 'Actualizar Ubicación' : 'Crear Ubicación'}
           </Button>
         </Form.Item>
       </Form>
@@ -84,4 +111,4 @@ const CreateLocation = () => {
   );
 };
 
-export default  CreateLocation ;
+export default CreateLocation;

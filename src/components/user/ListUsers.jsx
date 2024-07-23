@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Input, Button, Space, Popconfirm } from 'antd';
+import { Input, Button, Space, Popconfirm } from 'antd';
 import Highlighter from 'react-highlight-words';
-import { SearchOutlined } from '@ant-design/icons'; // Importar el ícono de "ver" desde antd
-import { Link } from 'react-router-dom'; // Importa Link desde react-router-dom
+import { SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { DeleteOutlined } from '@ant-design/icons';
 import Swal from 'sweetalert2';
+import GenericTable from '../table/Table';
+
 const ListUsers = () => {
-  const navigate = useNavigate(); // Obtains the navigation function
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
@@ -16,48 +16,50 @@ const ListUsers = () => {
   const userDetail = JSON.parse(localStorage.getItem('user'));
   const roleId = userDetail.roleId;
 
-
   useEffect(() => {
-    // Cargar los usuarios al montar el componente
     fetchUsers();
   }, []);
-  const handleDelete = async (id) => {
 
-    try {
-        await axios.delete(`${import.meta.env.VITE_BASE_URL}users/${id}`);
-        Swal.fire('Success', 'user eliminada exitosamente', 'success');
-        fetchUsers();
-    } catch (error) {
-        console.error('Error deleting signature:', error);
-        Swal.fire('Error', 'No se pudo eliminar el usuario', 'error');
-    }
-};
   const fetchUsers = async () => {
     try {
       const config = {
         headers: {
-            Authorization: token,
+          Authorization: token,
         },
-    };
+      };
       const response = await axios.get(`${import.meta.env.VITE_BASE_URL}users`, config);
-      setUsers(response.data);
+      const transformedUsers = response.data.map(user => ({
+        ...user,
+        roleName: getRole(user.roleId), // Add roleName property
+      }));
+      setUsers(transformedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
   };
 
-  const getColumnSearchProps = dataIndex => ({
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}users/${id}`);
+      Swal.fire('Éxito', 'Usuario eliminado exitosamente', 'success');
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      Swal.fire('Error', 'No se pudo eliminar el usuario', 'error');
+    }
+  };
+
+  const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-      
       <div style={{ padding: 8 }}>
         <Input
-          ref={node => {
+          ref={(node) => {
             const input = node;
             input && input.focus();
           }}
           placeholder={`Buscar ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{ width: 188, marginBottom: 8, display: 'block' }}
         />
@@ -77,12 +79,10 @@ const ListUsers = () => {
         </Space>
       </div>
     ),
-    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
     onFilter: (value, record) =>
-      record[dataIndex]
-        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
-        : '',
-    render: text =>
+      record[dataIndex] ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()) : '',
+    render: (text) =>
       searchedColumn === dataIndex ? (
         <Highlighter
           highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
@@ -101,11 +101,22 @@ const ListUsers = () => {
     setSearchedColumn(dataIndex);
   };
 
-  const handleReset = clearFilters => {
+  const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText('');
   };
-
+  const getRole = (roleId) => {
+    switch (roleId) {
+      case 1:
+        return 'Administrador';
+      case 2:
+        return 'Guardia';
+      case 3:
+        return 'Supervisor';
+      default:
+        return '';
+    }
+  };
   const columns = [
     {
       title: 'ID',
@@ -115,57 +126,49 @@ const ListUsers = () => {
     },
     {
       title: 'Nombre',
-      dataIndex: ['customer', 'name'],
+      dataIndex: 'customer.name',
       key: 'name',
-      ...getColumnSearchProps(['customer', 'name']),
+      ...getColumnSearchProps('customer.name'),
     },
     {
-      title: 'Correo Electrónico',
+      title: 'Correo',
       dataIndex: 'email',
       key: 'email',
       ...getColumnSearchProps('email'),
     },
     {
       title: 'Rol',
-      dataIndex: 'roleId',
+      dataIndex: 'roleName',
       key: 'roleId',
-      render: roleId => {
-        if (roleId === 1) return 'Administrador';
-        if (roleId === 2) return 'Guardia';
-        if (roleId === 3) return 'Supervisor';
-      },
+      render: (roleId) => getRole(roleId),
     },
+  ];
+  const actions = [
     {
-      title: 'Acción',
-      key: 'action',
-      render: (_, record) => (
-        <Space size="middle">
-                            <Popconfirm
-                        title="¿Estás seguro de eliminar esta firma?"
-                        onConfirm={() => handleDelete(record.id)}
-                        okText="SI"
-                        cancelText="No"
-                    >
-                        <Button type="link" danger icon={<DeleteOutlined />} style={{ color: 'red' }} />
-                    </Popconfirm>
-        </Space>
-      ),
+      type: 'popconfirm',
+      label: '',
+      icon: <DeleteOutlined />,
+      danger: true,
+      confirmMessage: '¿Está seguro de eliminar esta bitacora?',
+      onConfirm: (record) => handleDelete(record.id)
     },
   ];
 
   return (
-    <div>
-        <h1>Lista de Usuarios</h1>
-        <Table columns={columns} dataSource={users} />
-        {roleId === 1 && ( 
-            <Button style={{ marginLeft: '10px', marginRight: '10px', backgroundColor: '1F5BE3', borderColor: '1F5BE3' }} type="primary" 
-              onClick={() => navigate('/user/create')}>
-                Crear nuevo usuario
-            </Button>
-        )}
+    <div style={{ padding: '20px' }}>
+      <h1>Lista de Usuarios</h1>
+      <GenericTable columns={columns} data={users} actions={actions} />
+      {roleId === 1 && (
+        <Button
+          type="primary"
+          onClick={() => navigate('/user/create')}
+          style={{ marginTop: '10px', backgroundColor: '#1F5BE3', borderColor: '#1F5BE3' }}
+        >
+          Crear nuevo usuario
+        </Button>
+      )}
     </div>
   );
-  };
-
+};
 
 export default ListUsers;

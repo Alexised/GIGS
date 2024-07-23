@@ -9,7 +9,7 @@ const useFetchSupervisors = () => {
   useEffect(() => {
     const fetchSupervisors = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/v1/users/role?id=3');
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}users/role?id=3`);
         setSupervisors(response.data);
       } catch (error) {
         setError(error);
