@@ -30,7 +30,6 @@
     "react-highlight-words": "^0.20.0",
     "react-hook-form": "^7.51.2",
     "react-paginate": "^8.2.0",
-    "react-qr-reader": "^3.0.0-beta-1",
     "react-router-dom": "^6.14.2",
     "react-super-responsive-table": "^5.2.3",
     "react-zxing": "^2.0.0",
