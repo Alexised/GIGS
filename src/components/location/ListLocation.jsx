@@ -17,6 +17,8 @@ const ListLocation = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const userDetail = JSON.parse(localStorage.getItem("user"));
   const roleId = userDetail.roleId;
+  const userId = userDetail.id;
+
 
   useEffect(() => {
     fetchForms();
@@ -24,7 +26,12 @@ const ListLocation = () => {
 
   const fetchForms = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}locations`);
+      let response;
+      if(roleId==1){
+        response = await axios.get(`${import.meta.env.VITE_BASE_URL}locations`);
+      }else{
+        response = await axios.get(`${import.meta.env.VITE_BASE_URL}locations/user/${userId}`);
+      }
       setForms(response.data);
     } catch (error) {
       console.error("Error fetching forms:", error);

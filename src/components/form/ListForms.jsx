@@ -84,10 +84,12 @@ const ListForms = () => {
                             </>
                         )}
                     </Space>
-                    <Link to={`/form/${record.id}`}>
+                    {roleId === 1 &&
+                    <Link to={`/form/edit/${record.id}`}>
                         <Button type="primary" style={{ marginLeft: '10px', marginRight: '10px', backgroundColor: '1F5BE3', borderColor: '1F5BE3' }}
                             icon={<FormOutlined />} />
                     </Link>
+                    }
                 </>
             ),
         },

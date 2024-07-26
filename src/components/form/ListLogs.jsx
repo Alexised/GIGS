@@ -13,6 +13,7 @@ const ListFills = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const userDetail = JSON.parse(localStorage.getItem('user'));
   const roleId = userDetail.roleId;
+  const userId = userDetail.id
 
   useEffect(() => {
     fetchForms();
@@ -20,7 +21,12 @@ const ListFills = () => {
 
   const fetchForms = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}logs`);
+      let response
+      if(roleId==1){
+        response = await axios.get(`${import.meta.env.VITE_BASE_URL}logs`);
+      }else{
+        response = await axios.get(`${import.meta.env.VITE_BASE_URL}logs/user/${userId}`);
+      }
       setForms(response.data);
     } catch (error) {
       console.error('Error fetching forms:', error);

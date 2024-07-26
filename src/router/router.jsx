@@ -4,6 +4,7 @@ import {useState} from "react";
 import Dashboard from "../components/Dashboard.jsx";
 import ListForms from "../components/form/ListForms.jsx";
 import ListLogs from "../components/form/ListLogs.jsx";
+import ListLogsEvents from "../components/form/ListLogsEvents.jsx";
 import CreateLogs from "../components/form/CreateLogs.jsx";
 import ListSignatures from "../components/signature/ListSignatures.jsx";
 import ListUsers from "../components/user/ListUsers.jsx";
@@ -27,6 +28,7 @@ function Router(props) {
                 <Route path='/:id' element={props.isLoggedIn===false ?  <Navigate to='/login'/>: <Main component={<Dashboard></Dashboard>}></Main>}/>
                 <Route path='/forms' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<ListForms></ListForms>}></Main>}/>
                 <Route path='/logs' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<ListLogs></ListLogs>}></Main>}/>
+                <Route path='/show/logs/:id' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<ListLogsEvents></ListLogsEvents>}></Main>}/>
                 <Route path='/logs/create' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<CreateLogs></CreateLogs>}></Main>}/>
                 <Route path='/logs/edit/:id' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<CreateLogs></CreateLogs>}></Main>}/>
                 <Route path='/users' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<ListUsers></ListUsers>}></Main>}/>
@@ -37,9 +39,10 @@ function Router(props) {
                 <Route path='/location/edit/:id' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<CreateLocation></CreateLocation>}></Main>}/>
                 <Route path='/signature' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<ListSignatures></ListSignatures>}></Main>}/>
                 <Route path='/signature/create' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<CreateSignature></CreateSignature>}></Main>}/>
-                <Route path='/show/form/:id' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<FillForm show={true}></FillForm>}></Main>}/>
+                <Route path='/show/form/:eventId' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<FillForm show={true}></FillForm>}></Main>}/>
                 <Route path='location/:locationId/form/:id' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<FillForm show={false}></FillForm>}></Main>}/>
                 <Route path='/form/create' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<CreateEvents></CreateEvents>}></Main>}/>
+                <Route path='/form/edit/:id' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<CreateEvents></CreateEvents>}></Main>}/>
                 <Route path='/login' element={props.isLoggedIn===false ? <Login></Login>: <Navigate to='/'/>}/>
                 <Route path='/forgot-password' element={<ForgotPassword />} />
                 <Route path='/change-password' element={<RecoveryPassword />} />
