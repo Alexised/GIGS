@@ -5,6 +5,7 @@ import Dashboard from "../components/Dashboard.jsx";
 import ListForms from "../components/form/ListForms.jsx";
 import ListLogs from "../components/form/ListLogs.jsx";
 import ListLogsEvents from "../components/form/ListLogsEvents.jsx";
+import ListUsersEvents from "../components/form/ListUsersEvents.jsx";
 import CreateLogs from "../components/form/CreateLogs.jsx";
 import ListSignatures from "../components/signature/ListSignatures.jsx";
 import ListUsers from "../components/user/ListUsers.jsx";
@@ -33,6 +34,7 @@ function Router(props) {
                 <Route path='/logs/edit/:id' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<CreateLogs></CreateLogs>}></Main>}/>
                 <Route path='/users' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<ListUsers></ListUsers>}></Main>}/>
                 <Route path='/user/create' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<CreateUser></CreateUser>}></Main>}/>
+                <Route path='/user/events' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<ListUsersEvents></ListUsersEvents>}></Main>}/>
                 <Route path='/signature' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<ListSignatures></ListSignatures>}></Main>}/>
                 <Route path='/location' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<ListLocation></ListLocation>}></Main>}/>
                 <Route path='/location/create' element={props.isLoggedIn===false ? <Navigate to='/login'/>: <Main component={<CreateLocation></CreateLocation>}></Main>}/>

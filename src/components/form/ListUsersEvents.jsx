@@ -5,8 +5,9 @@ import { Table, Button, Space, message } from 'antd';
 import GenericTable from '../table/Table'; // Assuming the file is in the same directory
 import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
-const ListLogsEvents = () => {
-  const { id } = useParams();
+const ListUsersEvents = () => {
+  const userDetail = JSON.parse(localStorage.getItem('user'));
+  const userId = userDetail.id
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
 
@@ -16,21 +17,10 @@ const ListLogsEvents = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}bitacora-events/bitacora/${id}`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}bitacora-events/user/${userId}`);
       setEvents(response.data);
     } catch (error) {
       console.error('Error fetching events:', error);
-    }
-  };
-
-  const handleDelete = async (eventId) => {
-    try {
-      await axios.delete(`${import.meta.env.VITE_BASE_URL}events/bitacora${eventId}`);
-      setEvents(events.filter(event => event.id !== eventId));
-      message.success('Event deleted successfully');
-    } catch (error) {
-      console.error('Error deleting event:', error);
-      message.error('Error deleting event');
     }
   };
 
@@ -55,6 +45,7 @@ const ListLogsEvents = () => {
       dataIndex: 'customer.name',
       key: 'customer.name',
     },
+    // Add more columns as needed
   ];
 
   const actions = [
@@ -65,14 +56,6 @@ const ListLogsEvents = () => {
       style: { backgroundColor: '#3DB1FF' },
       onClick: (record) => navigate(`/show/form/${record.id}`)
     },
-    // {
-    //   type: 'popconfirm',
-    //   label: '',
-    //   icon: <DeleteOutlined />,
-    //   danger: true,
-    //   confirmMessage: '¿Está seguro de eliminar este evento?',
-    //   onConfirm: (record) => handleDelete(record.id)
-    // },
   ];
 
   return (
@@ -80,10 +63,10 @@ const ListLogsEvents = () => {
       <h1>Eventos de la Bitácora</h1>
       <GenericTable columns={columns} data={events} actions={actions} rowKey="id" />
       <Space style={{ marginTop: 20 }}>
-        <Button type="primary" onClick={() => navigate(`/logs`)}>Volver a Bitácoras</Button>
+        <Button type="primary" onClick={() => navigate(`/`)}>Volver a Bitácoras</Button>
       </Space>
     </div>
   );
 };
 
-export default ListLogsEvents;
+export default ListUsersEvents;

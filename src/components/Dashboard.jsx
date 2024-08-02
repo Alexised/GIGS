@@ -33,6 +33,9 @@ const Dashboard = () => {
         }
     };
 
+    const handleButtonClick = () => {
+        navigate('/user/events');
+      };
     const fetchData = async () => {
         setLoading(true);
         const config = {
@@ -170,6 +173,14 @@ const Dashboard = () => {
                             >
                                 Terminar Turno
                             </Button>
+                            <Button 
+                                type="default" 
+                                style={{ width: '200px', height: '40px' }}
+                                onClick={handleButtonClick}
+
+                            >
+                                ver eventos creados
+                            </Button>
                         </div>
                     )}
                     {showScanner && (
@@ -181,7 +192,7 @@ const Dashboard = () => {
                             Cerrar Scanner
                         </Button>
                     )}
-                    {!showScanner && id === undefined && (
+                    {!showScanner && id === null && (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
                             <Button 
                                 type="primary" 
